@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: bybit-mcp-server
+    env: node
+    plan: free
+    buildCommand: |
+      corepack enable
+      corepack prepare pnpm@latest --activate
+      pnpm install
+      pnpm build
+    startCommand: pnpm serve
+    envVars:
+      - key: BYBIT_API_KEY
+        sync: false
+      - key: BYBIT_API_SECRET
+        sync: false
+      - key: BYBIT_USE_TESTNET
+        value: "false"
+      - key: DEBUG
+        value: "false"
