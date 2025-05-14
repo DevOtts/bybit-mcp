@@ -16,7 +16,7 @@ You: Whats the current spot price for USDT/BTC?
 Assistant: <tool>get_ticker</tool>
 <arguments>
 {
-  "category": "spot",
+  "category": "SPOT",
   "symbol": "BTCUSDT"
 }
 </arguments>
@@ -27,7 +27,7 @@ Tool result: {
     "requestId": "ad5177bc-93d1-49ed-80a1-dd95b3ec970b"
   },
   "symbol": "BTCUSDT",
-  "category": "spot",
+  "category": "SPOT",
   "lastPrice": "101368.71",
   "price24hPcnt": "0.0107",
   "highPrice24h": "102661.3",
@@ -299,8 +299,7 @@ Returns detailed information about a trading instrument including:
 {
   "name": "get_wallet_balance",
   "arguments": {
-    "accountType": "UNIFIED", // required (available: "UNIFIED", "CONTRACT", "SPOT")
-    "coin": "BTC" // optional, if not provided returns all coins
+    "accountType": "UNIFIED"
   }
 }
 ```

@@ -268,10 +268,25 @@ export class BybitMcpClient {
 ${this.availableTools.map(tool => {
   const schema = tool.inputSchema as { properties?: Record<string, any>, required?: string[] }
   const required = schema.required || []
-  const properties = Object.entries(schema.properties || {}).map(([name, prop]) => {
+  const properties = Object.entries(schema.properties || {}).map(([name, propDef]) => {
+    const prop = propDef as any; // Cast to any to access potential enum and other schema fields
     const isRequired = required.includes(name)
-    const annotations = (prop as any).annotations || {}
-    return `    ${name}${isRequired ? ' (required)' : ''}: ${prop.description || 'No description'} ${annotations.priority === 1 ? '(high priority)' : ''}`
+    const annotations = prop.annotations || {}
+    let description = prop.description || 'No description';
+
+    if (prop.enum && Array.isArray(prop.enum)) {
+      const enumValues = prop.enum.map((e: string) => `"${e}"`).join(', ');
+      description += ` You MUST use one of these exact (case-sensitive) values: ${enumValues}.`;
+      if ((name === 'accountType' && tool.name === 'get_wallet_balance') || (name === 'category' && prop.enum.includes('SPOT'))) {
+        description += ` For example, to specify the SPOT type, you MUST use "SPOT" (all uppercase). Do NOT use "spot" (lowercase), as it will be rejected.`;
+      }
+    }
+
+    if (tool.name === 'get_wallet_balance' && name === 'coin') {
+      description = 'Optional. Specific coin symbol (e.g., "BTC", "USDT"). Omit to get balances for all coins.';
+    }
+
+    return `    ${name}${isRequired ? ' (required)' : ''}: ${description} ${annotations.priority === 1 ? '(high priority)' : ''}`
   }).join('\n')
 
   return `${tool.name}:
@@ -288,11 +303,20 @@ When a user asks about cryptocurrency data, you MUST use these tools to provide 
 - Use get_trades to see recent trades
 
 To use a tool, format your response like this:
-<tool>get_ticker</tool>
+<tool>get_wallet_balance</tool>
 <arguments>
 {
-  "category": "spot",
-  "symbol": "BTCUSDT"
+  "accountType": "SPOT"
+}
+</arguments>
+This specific example would retrieve all balances for the SPOT account type.
+IMPORTANT: For parameters like "accountType" or "category", if the intended value is SPOT, it MUST be "SPOT" (all uppercase). Using "spot" (lowercase) is INCORRECT and will cause an error.
+
+If you need to specify a coin, like BTC, for the SPOT account type, you would do:
+<arguments>
+{
+  "accountType": "SPOT",
+  "coin": "BTC"
 }
 </arguments>
 `
