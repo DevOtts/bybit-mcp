@@ -132,6 +132,24 @@ Client environment variables (./client/.env):
 
 To use this server with MCP clients, you need to add it to your MCP settings configuration file. The file location depends on your client:
 
+### How to add it to Cursor MCP Server
+
+```
+"bybit-local": {
+      "command": "node",
+      "args": [
+        "/full-path/bybit-mcp/build/index.js"
+      ],
+      "env": {
+        "BYBIT_API_KEY": "your_api_key",
+        "BYBIT_API_SECRET": "your_api_secret",
+        "BYBIT_USE_TESTNET": "false",
+        "DEBUG": "true"
+      }
+    },
+```
+
+
 #### MCP Example - Claude Desktop
 
 Location: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
