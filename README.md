@@ -224,6 +224,84 @@ To inspect the MCP server during development:
 pnpm inspector
 ```
 
+## Deploying to Cloudflare Workers
+
+This MCP server is designed to be easily deployable to [Cloudflare Workers](https://workers.cloudflare.com/) for a serverless setup. The repository includes a pre-configured `wrangler.toml` and a worker entry point `src/cloudflare-worker.ts`.
+
+### Prerequisites
+
+1.  A Cloudflare account.
+2.  [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/) installed and authenticated (`npx wrangler login`).
+3.  Node.js (v20+) and pnpm.
+
+### Setup and Deployment Steps
+
+1.  **Clone the Repository (if you haven't already):**
+    ```bash
+    git clone https://github.com/your-username/bybit-mcp.git # Replace with your repo URL
+    cd bybit-mcp 
+    ```
+
+2.  **Install Dependencies:**
+    ```bash
+    pnpm install
+    ```
+    This will install all necessary packages, including the `@cloudflare/workers-types` for development.
+
+3.  **Review `wrangler.toml`:**
+    The `wrangler.toml` file in the root of the project is pre-configured for deployment. Key settings include:
+    - `name`: The name of your worker (e.g., `bybit-mcp`). You might want to change this to be unique in your Cloudflare account.
+    - `main`: Set to `src/cloudflare-worker.ts`.
+    - `compatibility_date` and `compatibility_flags = ["nodejs_compat"]`: Ensure Node.js compatibility.
+    - `durable_objects`: Defines the `MCP_AGENT` Durable Object binding to the `McpAgentDO` class.
+    The migration settings are configured for the Cloudflare free plan using `new_sqlite_classes = ["McpAgentDO"]`.
+
+4.  **Set Cloudflare Secrets:**
+    Your Bybit API credentials and other configurations need to be set as secrets in Cloudflare. These are referenced in `src/env.ts` (via `getWorkerEnvConfig` in the worker) and used by the worker.
+    ```bash
+    npx wrangler secret put BYBIT_API_KEY
+    # Paste your API key when prompted
+
+    npx wrangler secret put BYBIT_API_SECRET
+    # Paste your API secret when prompted
+
+    npx wrangler secret put BYBIT_USE_TESTNET
+    # Enter "true" or "false" (default is "false" if not set, but explicit is better)
+
+    npx wrangler secret put DEBUG
+    # Enter "true" or "false" (default is "false" if not set)
+    ```
+    **Important:** Always use a read-only API key for Bybit. The server is designed for read-only operations, but this is a critical security measure.
+
+5.  **Deploy the Worker:**
+    ```bash
+    npx wrangler deploy
+    ```
+    If successful, Wrangler will output the URL of your deployed worker (e.g., `https://bybit-mcp.your-username.workers.dev`).
+
+### Configuring Your MCP Client (e.g., Cursor)
+
+Once deployed, you need to configure your MCP client to connect to the Cloudflare Worker. The relevant endpoint is the one that the Durable Object `McpAgentDO` serves. In the current setup (`src/cloudflare-worker.ts`), requests to `/sse` and `/mcp/*` paths are routed to the Durable Object.
+
+For Cursor, update your `mcp.json` settings file:
+- Open Cursor's MCP settings (usually via Command Palette: "Cursor: Configure MCP Servers").
+- Add or update an entry for your deployed worker. The URL should typically point to the `/sse` endpoint for streaming communication or `/mcp` for general MCP requests.
+
+Example configuration for `~/.cursor/mcp.json`:
+```json
+{
+  // ... other configurations ...
+  "bybit-cloudflare": {
+    "remote": true,
+    "url": "https://bybit-mcp.your-account-name.workers.dev/sse" // Or /mcp depending on specific client needs
+  }
+  // ...
+}
+```
+Replace `https://bybit-mcp.your-account-name.workers.dev` with your actual worker URL provided after deployment.
+
+After deployment, you can monitor logs for your worker in the Cloudflare dashboard (under Workers & Pages -> your worker -> Logs) to troubleshoot any issues.
+
 ## Tool Documentation
 
 ### Get Ticker Information

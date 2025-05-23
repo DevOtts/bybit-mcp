@@ -1,6 +1,6 @@
 import { config } from 'dotenv'
-import { join } from 'path'
-import { existsSync } from 'fs'
+import { join } from 'node:path'
+import { existsSync } from 'node:fs'
 
 // Load environment variables from .env file if it exists
 const envPath = join(process.cwd(), '.env')
