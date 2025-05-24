@@ -1,6 +1,6 @@
 name = "bybit-mcp"
 main = "src/cloudflare-worker.ts" # We will create this new entry point
-compatibility_date = "2024-09-23" # Updated to fix Node.js module resolution
+compatibility_date = "2024-07-25" # Or a more recent date
 compatibility_flags = ["nodejs_compat"]
 
 # [[d1_databases]]
