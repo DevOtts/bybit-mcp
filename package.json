@@ -36,13 +36,12 @@
     "trading"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.3",
+    "@modelcontextprotocol/sdk": "1.0.3",
     "bybit-api": "^3.10.27",
     "dotenv": "16.4.7",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240718.0",
     "@jest/globals": "29.7.0",
     "@types/jest": "29.5.14",
     "@types/node": "^22.10.2",
