@@ -128,17 +128,29 @@ Client environment variables (./client/.env):
 - `OLLAMA_HOST`: The host of the Ollama server (defaults to http://localhost:11434)
 - `DEFAULT_MODEL`: The default model to use for chat (defaults to llama-3.2-11b-instruct:Q8_0)
 
-### MCP Settings Configuration
+## MCP Client Configuration
 
-To use this server with MCP clients, you need to add it to your MCP settings configuration file. The file location depends on your client:
+To use this server with MCP clients, you need to add it to your MCP settings configuration file. The server must be built before configuration.
 
-### How to add it to Cursor MCP Server
+**Important:** Replace `/path/to/bybit-mcp` with the actual absolute path to your cloned repository, and replace the placeholder API keys with your actual Bybit **READ-ONLY** API credentials.
 
-```
-"bybit-local": {
+### Cursor
+
+Cursor uses an `mcp.json` configuration file. The typical locations are:
+
+- **macOS**: `~/.cursor/mcp.json`
+- **Windows**: `%APPDATA%\Cursor\mcp.json`
+- **Linux**: `~/.config/Cursor/mcp.json`
+
+Add the following configuration to the `mcpServers` section:
+
+```json
+{
+  "mcpServers": {
+    "bybit-local": {
       "command": "node",
       "args": [
-        "/full-path/bybit-mcp/build/index.js"
+        "/path/to/bybit-mcp/build/index.js"
       ],
       "env": {
         "BYBIT_API_KEY": "your_api_key",
@@ -146,37 +158,44 @@ To use this server with MCP clients, you need to add it to your MCP settings con
         "BYBIT_USE_TESTNET": "false",
         "DEBUG": "true"
       }
-    },
+    }
+  }
+}
 ```
 
+### Claude Desktop
 
-#### MCP Example - Claude Desktop
+Claude Desktop uses a `claude_desktop_config.json` configuration file:
 
-Location: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+Add the following configuration:
 
 ```json
 {
   "mcpServers": {
-    "bybit": {
+    "bybit-local": {
       "command": "node",
       "args": ["/path/to/bybit-mcp/build/index.js"],
       "env": {
-        "BYBIT_API_KEY": "your-api-key",
-        "BYBIT_API_SECRET": "your-api-secret",
-        "BYBIT_USE_TESTNET": "false"
+        "BYBIT_API_KEY": "your_api_key",
+        "BYBIT_API_SECRET": "your_api_secret",
+        "BYBIT_USE_TESTNET": "false",
+        "DEBUG": "true"
       }
     }
   }
 }
 ```
 
-#### MCP Example - [gomcp](https://github.com/sammcj/gomcp)
+### [gomcp](https://github.com/sammcj/gomcp)
 
-Location: `~/.config/gomcp/config.yaml`
+For gomcp users, add this to your `~/.config/gomcp/config.yaml`:
 
 ```yaml
 mcp_servers:
-  - name: "bybit"
+  - name: "bybit-local"
     command: "cd /path/to/bybit-mcp && pnpm run serve"
     arguments: []
     env:
